@@ -5,17 +5,17 @@ import 'package:vm_service/vm_service_io.dart';
 Future<void> main(List<String> arguments) async {
   // Use a Map instead of Expando
   final Map<Person, Birthday> mapData = {};
-  
+
   print('\nStep 1: Demonstrating equality-based lookup with Map');
   // Create our test objects
   Person? dave = Person('Dave', 28);
   Person? eve = Person('Eve', 32);
   Person? daveCopy = Person('Dave', 28);
-  
+
   // Show equality behavior
   print('dave == daveCopy: ${dave == daveCopy}'); // true
   print('dave.hashCode == daveCopy.hashCode: ${dave.hashCode == daveCopy.hashCode}'); // true
-  
+
   // Demonstrate Map's equality-based lookup
   mapData[dave] = Birthday(DateTime(1995, 5, 15)); // Dave's birthday
   mapData[eve] = Birthday(DateTime(1991, 8, 22)); // Eve's birthday
@@ -23,21 +23,21 @@ Future<void> main(List<String> arguments) async {
   print('Birthday for daveCopy: ${mapData[daveCopy]}'); // Works, uses equality!
   print('Birthday for eve: ${mapData[eve]}');
   print('Map size: ${mapData.length}'); // Will be 2, not 3
-  
+
   print('\nStep 2: Initial Person object count');
   await getNumberOfObjectsAfterGC();
-  
+
   print('\nStep 3: Clearing Dave\'s reference');
   dave = null;
-  
+
   print('\nStep 4: Checking Person and Birthday count after clearing Dave');
   await getNumberOfObjectsAfterGC();
   print('Map size: ${mapData.length}'); // Still 2
   print('Map keys contain daveCopy: ${mapData.containsKey(daveCopy)}'); // True
-  
+
   print('\nStep 5: Clearing remaining references');
   eve = null;
-  
+
   print('\nStep 6: Final Person and Birthday count after clearing all references');
   await getNumberOfObjectsAfterGC();
   print('Map size: ${mapData.length}'); // Still 2
@@ -62,8 +62,10 @@ Future<void> getNumberOfObjectsAfterGC() async {
 
     if (isolateId != null) {
       final allocation = await service.getAllocationProfile(isolateId, gc: true);
-      final personCount = allocation.members!.where((sample) => sample.classRef?.name == 'Person').first.instancesCurrent ?? 0;
-      final birthdayCount = allocation.members!.where((sample) => sample.classRef?.name == 'Birthday').first.instancesCurrent ?? 0;
+      final personCount =
+          allocation.members!.where((sample) => sample.classRef?.name == 'Person').first.instancesCurrent ?? 0;
+      final birthdayCount =
+          allocation.members!.where((sample) => sample.classRef?.name == 'Birthday').first.instancesCurrent ?? 0;
       print('Number of Person objects: $personCount');
       print('Number of Birthday objects: $birthdayCount');
     }
